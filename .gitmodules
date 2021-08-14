@@ -1,0 +1,9 @@
+[submodule "lib/freertos/FreeRTOS-Kernel"]
+	path = lib/freertos/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "lib/lvgl/lvgl"]
+	path = lib/lvgl/lvgl
+	url = https://github.com/lvgl/lvgl.git
+[submodule "lib/network/lwip"]
+	path = lib/network/lwip
+	url = https://git.savannah.nongnu.org/git/lwip.git
