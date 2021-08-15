@@ -192,7 +192,16 @@ void tud_network_init_cb(void)
   }
 }
 
-static network_task_cb task_cb = NULL;
+static network_cb network_cbs[MAX_NET_CB_NUM];
+static network_cbs_num = 0;
+
+void network_add_cb(network_cb netcb)
+{
+  if (network_cbs_num < MAX_NET_CB_NUM)
+  {
+    network_cbs[network_cbs_num++] = netcb;
+  }
+}
 
 void network_entry(void)
 {
@@ -204,17 +213,15 @@ void network_entry(void)
   init_lwip();
   while (!netif_is_up(&netif_data))
     ;
-  dhcp_start(&netif_data);
-  sntp_init();
   // lwiperf_start_tcp_server_default(NULL, NULL);
 
   while (1)
   {
     tud_task();
     service_traffic();
-    if (task_cb)
+    for (uint8_t i = 0; i < network_cbs_num; i++)
     {
-      task_cb();
+        network_cbs[i](&netif_data);
     }
     vTaskDelay(pdMS_TO_TICKS(10));
   }
@@ -222,9 +229,8 @@ void network_entry(void)
   // return 0;
 }
 
-void network_start(network_task_cb cb)
+void network_start()
 {
-  task_cb = cb;
   BaseType_t rt;
   /* Create the main task */
   rt = xTaskCreate(network_entry, "network", THREAD_NETWORK_STACK_SIZE, NULL, THREAD_NETWORK_THREAD_PRIORITY, NULL);

@@ -124,7 +124,7 @@ void shell_entry()
     char slash_shown = 0;
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(50));
         c = getchar();
         // printf("recv: %d\n", c);
         if (c < 0)
@@ -133,7 +133,7 @@ void shell_entry()
         }
         cmdbuf[idx % CMD_LEN_MAX] = c;
         idx++;
-        if (c == 13) // enter \n
+        if (13 == c || 10 == c ) // 13 is \n, 10 is \r
         {
             cmdbuf[--idx] = 0;
             if (!slash_shown)

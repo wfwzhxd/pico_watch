@@ -27,6 +27,8 @@ target_include_directories(main
         )
 
 set(MAIN_SRC
+        src/net.c
+        src/stdio_net.c
         src/main.c
         src/rtc.c
         src/shell.c

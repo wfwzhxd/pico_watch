@@ -9,12 +9,15 @@
 
 static void prvSetupHardware(void);
 
+extern void nettask_init();
+
 int main(void)
 {
     prvSetupHardware();
     gui_start();
     shell_start();
-    network_start(NULL);
+    network_start();
+    nettask_init();
 #ifdef DEBUG_PRINTF
     printf("vTaskStartScheduler start\n");
 #endif
