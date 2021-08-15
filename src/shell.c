@@ -11,7 +11,7 @@
 #include "pico/bootrom.h"
 #include "pico/time.h"
 
-#define CMD_LEN_MAX 40
+#define CMD_LEN_MAX 60
 
 int cmd_set_datetime(char *args);
 int cmd_list_cmd(char *args);
@@ -47,7 +47,7 @@ static const cmd_t cmd_map[] = {
      .entry = cmd_reset},
     {.cmd = "set_datetime",
      .desc = "set current datetime",
-     .help = "usage example: datetime 2021 08 09, 12 23",
+     .help = "usage example: set_datetime 1991 01 02, 22 36 51, 5",
      .entry = cmd_set_datetime},
     {.cmd = "task_list",
      .desc = "show task info",
@@ -149,7 +149,7 @@ void shell_entry()
                 }
             }
             idx = 0;
-            cmdbuf[idx] = 0;
+            cmdbuf[0] = 0;
             printf("\n#");
         }
     }
@@ -186,11 +186,12 @@ int cmd_set_datetime(char *args)
 {
     if (strlen(args) < 17)
     {
+        printf("args not enough\n");
         return -1;
     }
     __uint16_t year, month, day, hour, min, sec, dotw;
     // portDISABLE_INTERRUPTS();
-    if (7 == sscanf(args, "%hd %hd %hd, %hd %hd %hd, %hd", &year, &month, &day, &hour, &min, &sec, &dotw) || rtc_set_datetime2(year, month, day, hour, min, sec, dotw))
+    if (7 == sscanf(args, "%hd %hd %hd, %hd %hd %hd, %hd", &year, &month, &day, &hour, &min, &sec, &dotw) && rtc_set_datetime2(year, month, day, hour, min, sec, dotw))
     {
         return 0;
     }
