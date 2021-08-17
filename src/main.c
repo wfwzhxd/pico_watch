@@ -3,8 +3,7 @@
 #include "task.h"     /* RTOS task related API prototypes. */
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "gui.h"
-#include "shell.h"
+
 #include "network.h"
 
 static void prvSetupHardware(void);
@@ -14,9 +13,7 @@ extern void nettask_init();
 int main(void)
 {
     prvSetupHardware();
-    gui_start();
-    shell_start();
-    network_start();
+    network_start();    // register stdio_net first
     nettask_init();
 #ifdef DEBUG_PRINTF
     printf("vTaskStartScheduler start\n");
@@ -43,3 +40,7 @@ void DEV_Delay_ms(uint32_t xms)
 {
     vTaskDelay(pdMS_TO_TICKS(xms));
 }
+
+// void isr_hardfault() {
+//     printf("isr_hardfault\n");
+// }

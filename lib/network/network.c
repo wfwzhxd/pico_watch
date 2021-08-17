@@ -203,7 +203,7 @@ void network_add_cb(network_cb netcb)
   }
 }
 
-void network_entry(void)
+void network_entry(void* args)
 {
   /* initialize TinyUSB */
   board_init();

@@ -2,6 +2,8 @@
 #include "queue.h"
 #include "lwip/tcp.h"
 #include "pico/stdio/driver.h"
+#include "gui.h"
+#include "shell.h"
 
 #define STDIO_NET_PORT 63
 
@@ -14,7 +16,7 @@ static void stdio_net_err(void *arg, err_t err);
 static err_t stdio_net_poll(void *arg, struct tcp_pcb *pcb);
 static err_t stdio_net_accept(void *arg, struct tcp_pcb *pcb, err_t err);
 
-static QueueHandle_t queue_stdin;  // printf <- network
+static QueueHandle_t queue_stdin;  // scanf <- network
 static QueueHandle_t queue_stdout; // printf -> network
 
 static void stdio_net_out_chars(const char *buf, int length);
@@ -70,6 +72,11 @@ void stdio_net_cb(struct netif *netif)
         queue_stdout = xQueueCreate(STDIO_NET_BUF_SIZE, 1);
         stdio_net_init_driver();
         stdio_net_init_tcp();
+
+        gui_start();
+        shell_start();
+        // start other task
+
     }
     if  (NULL != global_pcb) {
         stdio_net_send(global_pcb);

@@ -10,6 +10,8 @@
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/time.h"
+#include "lvgl/lvgl.h"
+#include "gui.h"
 
 #define CMD_LEN_MAX 60
 
@@ -21,6 +23,7 @@ int cmd_heap_stat(char *args);
 int cmd_reset(char *args);
 int cmd_flash(char *args);
 int cmd_uptime(char *args);
+int cmd_rotate_screen(char *args);
 
 typedef int (*cmd_entry)(char *args);
 
@@ -33,6 +36,10 @@ typedef struct
 } cmd_t;
 
 static const cmd_t cmd_map[] = {
+    {.cmd = "rotate_screen",
+     .desc = "rotate screen 180 degree",
+     .help = NULL,
+     .entry = cmd_rotate_screen},
     {.cmd = "uptime",
      .desc = "show how long does the device running",
      .help = NULL,
@@ -277,4 +284,15 @@ int cmd_uptime(char *args)
     uptime = uptime / 24; // day
     uint8_t day = uptime;
     printf("uptime:  %d days %d hours %d minutes %d seconds\n", day, hour, min, sec);
+}
+
+int cmd_rotate_screen(char *args) {
+    // need mutex to protect!
+    if (xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(500))) {
+        lv_disp_set_rotation(NULL, lv_disp_get_rotation(NULL)==LV_DISP_ROT_NONE?LV_DISP_ROT_180:LV_DISP_ROT_NONE);
+        xSemaphoreGive(lvgl_mutex);
+        return 0;
+    }
+    printf("xSemaphoreTake timeout\n");
+    return -1;
 }

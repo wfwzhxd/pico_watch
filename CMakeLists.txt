@@ -17,6 +17,7 @@ add_subdirectory(lib/lvgl)
 add_subdirectory(lib/freertos)
 add_subdirectory(lib/display)
 add_subdirectory(lib/network)
+add_subdirectory(lib/input)
 
 add_executable(main)
 target_include_directories(main
@@ -24,6 +25,7 @@ target_include_directories(main
         PRIVATE $<TARGET_PROPERTY:network,INTERFACE_INCLUDE_DIRECTORIES>
         PRIVATE $<TARGET_PROPERTY:display,INTERFACE_INCLUDE_DIRECTORIES>
         PRIVATE $<TARGET_PROPERTY:lvgl,INTERFACE_INCLUDE_DIRECTORIES>
+        PRIVATE $<TARGET_PROPERTY:input,INTERFACE_INCLUDE_DIRECTORIES>
         )
 
 set(MAIN_SRC
@@ -32,6 +34,7 @@ set(MAIN_SRC
         src/main.c
         src/rtc.c
         src/shell.c
+        # src/gui/lv_demo_keypad_encoder.c
         src/gui/gui.c
         src/gui/lv_font_kslyt_30.c
         src/gui/lv_font_kslyt_48.c
@@ -47,6 +50,7 @@ target_link_libraries(main
         pico_stdlib
         hardware_rtc
         pico_time
+        input
         )
 
 # add_compile_definitions("LV_LVGL_H_INCLUDE_SIMPLE")

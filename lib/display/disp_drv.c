@@ -32,7 +32,7 @@ void display_init()
 
     LCD_1IN14_Clear(0xF800); // RED
 
-    DEV_Delay_ms(1000);
+    DEV_Delay_ms(200);
 
     /*A static or global variable to store the buffers*/
     static lv_disp_draw_buf_t disp_buf;
@@ -48,6 +48,8 @@ void display_init()
     disp_drv.flush_cb = my_flush_cb;    /*Set a flush callback to draw to the display*/
     disp_drv.hor_res = MY_DISP_HOR_RES; /*Set the horizontal resolution in pixels*/
     disp_drv.ver_res = MY_DISP_VER_RES; /*Set the vertical resolution in pixels*/
+    disp_drv.sw_rotate = 1;
+    disp_drv.rotated = LV_DISP_ROT_NONE;
 
     lv_disp_t *disp;
     disp = lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/

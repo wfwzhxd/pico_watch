@@ -8,6 +8,7 @@
 #include "semphr.h"
 #include "rtc.h"
 #include <stdio.h>
+#include "input_drv.h"
 
 static char time_str[TIME_LEN_MAX + 1];
 static char date_str[DATE_LEN_MAX + 1];
@@ -85,12 +86,14 @@ void refresh_datetime()
     // printf("time changed: %s\n", time_str);
 }
 
+// extern void lv_demo_keypad_encoder(void);
 static void loop()
 {
     uint8_t delay_ms = 50;
     uint8_t needRefresh = 0;
     while (1)
     {
+        xSemaphoreTake(lvgl_mutex, portMAX_DELAY);
         if (2 == needRefresh)
         {
             needRefresh = 0;
@@ -101,16 +104,24 @@ static void loop()
         needRefresh++;
         lv_tick_inc(delay_ms);
         lv_task_handler();
+        xSemaphoreGive(lvgl_mutex);
         vTaskDelay(pdMS_TO_TICKS(delay_ms));
     }
 }
 
 static void gui_entry(void *pvParameters)
 {
-    // xSemaphore = xSemaphoreCreateMutex();
+    lvgl_mutex = xSemaphoreCreateMutex();
+    xSemaphoreTake(lvgl_mutex, portMAX_DELAY);
     lv_init();
     display_init();
+    xSemaphoreGive(lvgl_mutex);
+    input_start();
+    vTaskDelay(pdMS_TO_TICKS(100));
+    xSemaphoreTake(lvgl_mutex, portMAX_DELAY);
     create_widgets();
+    // lv_demo_keypad_encoder();
+    xSemaphoreGive(lvgl_mutex);
     loop();
 }
 
@@ -118,51 +129,9 @@ void gui_start()
 {
     BaseType_t rt;
     /* Create the main task */
-    rt = xTaskCreate(/* The function that implements the task. */
-                     gui_entry,
-                     /* Text name for the task, just to help debugging. */
-                     "gui",
-                     /* The size (in words) of the stack that should be created
-            for the task. */
-                     THREAD_GUI_STACK_SIZE,
-                     /* A parameter that can be passed into the task.  Not used
-            in this simple demo. */
-                     NULL,
-                     /* The priority to assign to the task.  tskIDLE_PRIORITY
-            (which is 0) is the lowest priority.  configMAX_PRIORITIES - 1
-            is the highest priority. */
-                     THREAD_GUI_THREAD_PRIORITY,
-                     /* Used to obtain a handle to the created task.  Not used in
-            this simple demo, so set to NULL. */
-                     NULL);
+    rt = xTaskCreate(gui_entry, "gui", THREAD_GUI_STACK_SIZE, NULL, THREAD_GUI_THREAD_PRIORITY, NULL);
     if (rt != pdPASS)
     {
         printf("create thread [gui] failed %d\n", rt);
     }
-}
-
-void set_date(char *datestr)
-{
-    if (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE)
-    {
-        printf("set_date: take\n");
-        SET_OBJ_CHANGED(DATE_OBJ);
-        strncpy(date_str, datestr, DATE_LEN_MAX);
-        xSemaphoreGive(xSemaphore);
-        printf("set_date: give\n");
-    }
-    printf("set_date: exit\n");
-}
-
-void set_time(char *timestr)
-{
-    if (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE)
-    {
-        printf("set_time: take\n");
-        SET_OBJ_CHANGED(TIME_OBJ);
-        strncpy(time_str, timestr, TIME_LEN_MAX);
-        xSemaphoreGive(xSemaphore);
-        printf("set_time: give\n");
-    }
-    printf("set_time: exit\n");
 }
