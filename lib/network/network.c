@@ -68,11 +68,12 @@ static struct pbuf *received_frame;
 /* it is suggested that the first byte is 0x02 to indicate a link-local address */
 const uint8_t tud_network_mac_address[6] = {0x02, 0x02, 0x84, 0x6A, 0x96, 0x00};
 
+static uint8_t repeat;
 static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
 {
   (void)netif;
-
-  for (;;)
+  repeat = 0;
+  for (;repeat < 5;repeat++)
   {
     /* if TinyUSB isn't ready, we must signal back to lwip that there is nothing we can do */
     if (!tud_ready())
@@ -88,6 +89,7 @@ static err_t linkoutput_fn(struct netif *netif, struct pbuf *p)
     /* transfer execution to TinyUSB in the hopes that it will finish transmitting the prior packet */
     tud_task();
   }
+  return ERR_USE;
 }
 
 static err_t output_fn(struct netif *netif, struct pbuf *p, const ip_addr_t *addr)
@@ -193,7 +195,7 @@ void tud_network_init_cb(void)
 }
 
 static network_cb network_cbs[MAX_NET_CB_NUM];
-static network_cbs_num = 0;
+static uint8_t network_cbs_num = 0;
 
 void network_add_cb(network_cb netcb)
 {
