@@ -24,6 +24,7 @@ int cmd_reset(char *args);
 int cmd_flash(char *args);
 int cmd_uptime(char *args);
 int cmd_rotate_screen(char *args);
+int cmd_task_regs(char *args);
 
 typedef int (*cmd_entry)(char *args);
 
@@ -36,6 +37,10 @@ typedef struct
 } cmd_t;
 
 static const cmd_t cmd_map[] = {
+    {.cmd = "task_regs",
+     .desc = "show specific task's register content",
+     .help = "task_regs [task_name]",
+     .entry = cmd_task_regs},
     {.cmd = "rotate_screen",
      .desc = "rotate screen 180 degree",
      .help = NULL,
@@ -75,11 +80,7 @@ static const cmd_t cmd_map[] = {
 
 const cmd_t *match_cmd(const char *cmds)
 {
-    while (' ' == *cmds) // strip
-    {
-        cmds++;
-    }
-
+    TRIM_LEFT(cmds);
     cmd_t *result = NULL;
     const unsigned char cmdsLen = strlen(cmds);
     for (__uint8_t i = 0; i < ARRAY_LEN(cmd_map); i++)
@@ -132,9 +133,9 @@ void shell_entry()
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(50));
-        c = getchar();
+        c = getchar_timeout_us(0);
         // printf("recv: %d\n", c);
-        if (c < 0)
+        if (c < 0 || c > 127)
         {
             continue;
         }
@@ -157,7 +158,7 @@ void shell_entry()
             }
             idx = 0;
             cmdbuf[0] = 0;
-            printf("\n#");
+            printf("\n# ");
         }
     }
 }
@@ -295,4 +296,28 @@ int cmd_rotate_screen(char *args) {
     }
     printf("xSemaphoreTake timeout\n");
     return -1;
+}
+
+extern void print_regs(void *sp);
+
+int cmd_task_regs(char *args) {
+    TRIM_LEFT(args);
+    const char* task_name = args;
+    if (strlen(task_name)<1 || strlen(task_name)>configMAX_TASK_NAME_LEN) {
+        printf("task name is not valid\n");
+        return -1;
+    }
+    char result = 0;
+    vTaskSuspendAll();
+    TaskHandle_t task_handle = xTaskGetHandle(task_name);
+    if (task_handle) {
+        uint32_t **stacktop = (uint32_t **)task_handle;
+        print_regs((*stacktop) + 8);
+        result = 0;
+    } else {
+        printf("not find task with specific name[%s]\n", task_name);
+        result = -1;
+    }
+    xTaskResumeAll();
+    return result;
 }

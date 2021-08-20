@@ -6,4 +6,6 @@
 #define BIT2 (1<<2)
 #define BIT3 (1<<3)
 
+#define TRIM_LEFT(X) while (' ' == *X) { X++; }
+
 #endif
