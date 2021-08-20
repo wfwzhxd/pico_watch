@@ -13,7 +13,7 @@ file(GLOB FREERTOS_SRC_KERNEL ${FREERTOS_SOURCE_DIR}/*.c)
 file(GLOB FREERTOS_SRC_ARM_CM0 ${FREERTOS_SOURCE_DIR}/portable/GCC/ARM_CM0/*.c)
 set(FREERTOS_SRC_MEM ${FREERTOS_SOURCE_DIR}/portable/MemMang/heap_4.c)
 
-target_sources(freertos PUBLIC ${FREERTOS_SRC_KERNEL} ${FREERTOS_SRC_ARM_CM0} ${FREERTOS_SRC_MEM})
+target_sources(freertos PUBLIC ${FREERTOS_SRC_KERNEL} ${FREERTOS_SRC_ARM_CM0} ${FREERTOS_SRC_MEM} port.c)
 target_include_directories(freertos
         PUBLIC ${FREERTOS_SOURCE_DIR}/include/
         PUBLIC ${FREERTOS_SOURCE_DIR}/portable/GCC/ARM_CM0/
