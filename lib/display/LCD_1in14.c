@@ -218,20 +218,16 @@ parameter:
 void LCD_1IN14_Clear(UWORD Color)
 {
     UWORD j,i;
-    UWORD Image[LCD_1IN14.WIDTH*LCD_1IN14.HEIGHT];
-    
     Color = ((Color<<8)&0xff00)|(Color>>8);
-   
-    for (j = 0; j < LCD_1IN14.HEIGHT*LCD_1IN14.WIDTH; j++) {
-        Image[j] = Color;
-    }
     
     LCD_1IN14_SetWindows(0, 0, LCD_1IN14.WIDTH, LCD_1IN14.HEIGHT);
     DEV_Digital_Write(EPD_DC_PIN, 1);
     DEV_Digital_Write(EPD_CS_PIN, 0);
     // printf("HEIGHT %d, WIDTH %d\r\n",LCD_1IN14.HEIGHT,LCD_1IN14.WIDTH);
     for(j = 0; j < LCD_1IN14.HEIGHT; j++){
-        DEV_SPI_Write_nByte((uint8_t *)&Image[j*LCD_1IN14.WIDTH], LCD_1IN14.WIDTH*2);
+        for(i = 0; i < LCD_1IN14.WIDTH; i++){
+            DEV_SPI_Write_nByte((uint8_t *)&Color, 2);
+        }
     }
     DEV_Digital_Write(EPD_CS_PIN, 1);
 }

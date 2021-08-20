@@ -51,6 +51,8 @@ void display_init()
     disp_drv.sw_rotate = 1;
     disp_drv.rotated = LV_DISP_ROT_NONE;
 
-    lv_disp_t *disp;
-    disp = lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
+    lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
+#ifdef DEBUG_PRINTF
+    printf("display_init done\n");
+#endif
 }
