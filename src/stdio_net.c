@@ -73,8 +73,8 @@ void stdio_net_cb(struct netif *netif)
         stdio_net_init_driver();
         stdio_net_init_tcp();
 
-        gui_start();
         shell_start();
+        gui_start();
         // start other task
 
     }
@@ -114,7 +114,8 @@ static err_t stdio_net_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_
             tcp_recved(pcb, p->tot_len);
             pbuf_free(p);
         }
-        // todo: close tcp conn
+        global_pcb = NULL;
+        tcp_close(pcb);
         return ERR_OK;
     }
     char *data = (char *)p->payload;
@@ -127,12 +128,6 @@ static err_t stdio_net_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_
     }
     tcp_recved(pcb, p->tot_len);
     pbuf_free(p);
-    // // delay , wait output
-    // for (int j = 0; j < 3; j++)
-    // {
-    //     vTaskDelay(pdMS_TO_TICKS(100));
-    //     stdio_net_send(pcb);
-    // }
 
     return ERR_OK;
 }
