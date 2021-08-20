@@ -1,5 +1,6 @@
 #include "network.h"
 #include <stdint.h>
+#include "lwip/netif.h"
 
 void net_config_cb(struct netif *netif)
 {
@@ -7,7 +8,14 @@ void net_config_cb(struct netif *netif)
     if (!init)
     {
         init = 1;
-        dhcp_start(netif);
+        ip4_addr_t ip, mask, gw, dnss;
+        IP4_ADDR(&ip, 10, 0, 0, 3);
+        IP4_ADDR(&mask, 255, 255, 0, 0);
+        IP4_ADDR(&gw, 10, 0, 0, 1);
+        netif_set_addr(netif, &ip, &mask, &gw);
+        IP4_ADDR(&dnss, 114, 114, 114, 114);
+        dns_setserver(0, &dnss);
+        // dhcp_start(netif);
         sntp_init();
     }
 }
