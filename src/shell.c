@@ -141,7 +141,7 @@ void shell_entry()
         }
         cmdbuf[idx % CMD_LEN_MAX] = c;
         idx++;
-        if (13 == c || 10 == c ) // 13 is \n, 10 is \r
+        if (13 == c || 10 == c) // 13 is \n, 10 is \r
         {
             cmdbuf[--idx] = 0;
             if (!slash_shown)
@@ -287,10 +287,12 @@ int cmd_uptime(char *args)
     printf("uptime:  %d days %d hours %d minutes %d seconds\n", day, hour, min, sec);
 }
 
-int cmd_rotate_screen(char *args) {
+int cmd_rotate_screen(char *args)
+{
     // need mutex to protect!
-    if (xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(500))) {
-        lv_disp_set_rotation(NULL, lv_disp_get_rotation(NULL)==LV_DISP_ROT_NONE?LV_DISP_ROT_180:LV_DISP_ROT_NONE);
+    if (xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(500)))
+    {
+        lv_disp_set_rotation(NULL, lv_disp_get_rotation(NULL) == LV_DISP_ROT_NONE ? LV_DISP_ROT_180 : LV_DISP_ROT_NONE);
         xSemaphoreGive(lvgl_mutex);
         return 0;
     }
@@ -300,21 +302,26 @@ int cmd_rotate_screen(char *args) {
 
 extern void print_regs(void *sp);
 
-int cmd_task_regs(char *args) {
+int cmd_task_regs(char *args)
+{
     TRIM_LEFT(args);
-    const char* task_name = args;
-    if (strlen(task_name)<1 || strlen(task_name)>configMAX_TASK_NAME_LEN) {
+    const char *task_name = args;
+    if (strlen(task_name) < 1 || strlen(task_name) > configMAX_TASK_NAME_LEN)
+    {
         printf("task name is not valid\n");
         return -1;
     }
     char result = 0;
     vTaskSuspendAll();
     TaskHandle_t task_handle = xTaskGetHandle(task_name);
-    if (task_handle) {
+    if (task_handle)
+    {
         uint32_t **stacktop = (uint32_t **)task_handle;
         print_regs((*stacktop) + 8);
         result = 0;
-    } else {
+    }
+    else
+    {
         printf("not find task with specific name[%s]\n", task_name);
         result = -1;
     }
