@@ -281,7 +281,7 @@ int cmd_uptime(char *args)
     uptime = uptime / 60; // min
     uint8_t min = uptime % 60;
     uptime = uptime / 60; // hour
-    uint8_t hour = uptime % 60;
+    uint8_t hour = uptime % 24;
     uptime = uptime / 24; // day
     uint8_t day = uptime;
     printf("uptime:  %d days %d hours %d minutes %d seconds\n", day, hour, min, sec);
